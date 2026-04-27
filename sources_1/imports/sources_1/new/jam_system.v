@@ -24,7 +24,8 @@ module jam_system (
     input wire sys_clk,       // システムクロック (125MHz)
     input wire sys_rst_n,     // リセット信号 (Active Low)
     input wire dme_rx_pin,    // FPGA入力ピン: 差動マンチェスタ信号 (12.5MHz)
-    output reg jam_pin        // FPGA出力ピン: ジャム信号出力 (640ビット長)
+    output reg jam_pin,       // FPGA出力ピン: ジャム信号出力 (640ビット長)
+    output reg led_out        // 1000回実行したら点灯
 );
 
     // =========================================================
@@ -66,6 +67,7 @@ module jam_system (
     reg [1:0]  state;       // ステートマシンの現在の状態
     reg [12:0] counter;     // 汎用タイマーカウンタ (6400を数えるため13bit必要)
     reg        ssd_enable;  // 第2検知器の動作許可信号 (Enable)
+    reg [9:0]  jam_counter; // 妨害した回数
 
     // =========================================================
     // 4. サブモジュールの接続
@@ -114,6 +116,8 @@ module jam_system (
             counter     <= 13'd0;
             ssd_enable  <= 1'b0;
             jam_pin     <= 1'b0;
+            jam_counter <= 10'd0;
+            led_out     <= 1'b0;
         end else begin
             case (state)
                 // ------------------------------------------------
@@ -179,6 +183,11 @@ module jam_system (
                 // ------------------------------------------------
                 ST_OUTPUT: begin
                     jam_pin <= 1'b1; // 出力ピンをHighに
+                    jam_counter <= jam_counter + 1'b1;
+
+                    if (jam_counter == 10'd999) begin
+                        led_out <= 1'b1; // 1000回目の出力でLED点灯
+                    end
 
                     if (counter == OUT_CYCLES - 1) begin
                         // 規定時間経過したら終了
