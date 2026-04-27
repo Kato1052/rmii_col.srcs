@@ -156,6 +156,12 @@ module jam_system (
                         state       <= ST_OUTPUT; // 出力フェーズへ
                         counter     <= 13'd0;
                         ssd_enable  <= 1'b0;      // 検知器の役割終了
+
+                        jam_counter <= jam_counter + 1'b1;
+
+                        if (jam_counter == 10'd999) begin
+                            led_out <= 1'b1; // 1000回目の出力でLED点灯
+                        end
                     end
                     // パターンB: ウィンドウ時間終了時の判定
                     else if (counter >= HUNT_WINDOW - 1) begin
@@ -183,11 +189,6 @@ module jam_system (
                 // ------------------------------------------------
                 ST_OUTPUT: begin
                     jam_pin <= 1'b1; // 出力ピンをHighに
-                    jam_counter <= jam_counter + 1'b1;
-
-                    if (jam_counter == 10'd999) begin
-                        led_out <= 1'b1; // 1000回目の出力でLED点灯
-                    end
 
                     if (counter == OUT_CYCLES - 1) begin
                         // 規定時間経過したら終了
