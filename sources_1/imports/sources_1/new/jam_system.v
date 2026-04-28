@@ -44,8 +44,8 @@ module jam_system (
     localparam integer HUNT_WINDOW  = 40 * CLKS_PER_BIT;
 
     // [出力時間] ジャム信号(High)を出力する期間
-    // 40 bits * 10 = 400 clocks (4 * 8 * 1.25(FSC4バイト * ビット * 4B5B))
-    localparam integer OUT_CYCLES   = 40 * CLKS_PER_BIT;
+    // 40 bits * 10 = 400 clocks (32 * 8 * 1.25(32バイト * ビット * 4B5B))
+    localparam integer OUT_CYCLES   = 320 * CLKS_PER_BIT;
 
     // =========================================================
     // 2. ステート定義
